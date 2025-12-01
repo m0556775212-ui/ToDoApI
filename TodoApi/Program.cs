@@ -30,6 +30,18 @@ builder.Services.AddSwaggerGen();
 
 // -------------------- APP --------------------
 var app = builder.Build();
+// -------------------- בדיקת חיבור למסד --------------------
+try
+{
+    using var scope = app.Services.CreateScope();
+    var db = scope.ServiceProvider.GetRequiredService<ToDoDbContext>();
+    db.Database.CanConnect(); // מנסה להתחבר למסד
+    Console.WriteLine("✅ Database connection successful!");
+}
+catch (Exception ex)
+{
+    Console.WriteLine("❌ Database connection failed: " + ex.Message);
+}
 
 app.UseCors();
 app.UseSwagger();
