@@ -26,43 +26,46 @@
 # --- Build React ---
 # --- Build React frontend ---
 # --- Build React frontend ---
+# --- Build React frontend ---
 FROM node:20 AS build-frontend
 WORKDIR /app
 
 # העתק package.json ו-.env של React
-COPY ToDoListReact-master/package*.json ./
-COPY ToDoListReact-master/.env ./
+COPY ../ToDoListReact-master/package*.json ./
+COPY ../ToDoListReact-master/.env ./
 RUN npm install
 
 # העתק את כל קבצי React
-COPY ToDoListReact-master/ ./
+COPY ../ToDoListReact-master/ ./
 RUN npm run build
 
 # --- Build .NET backend ---
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build-backend
 WORKDIR /src
 
-# שנה את השורה הזו לשם המדויק של הפרויקט שלך
+# העתק ה-.csproj של backend ותקן restore
 COPY ["TodoApi.csproj", "./"]
 RUN dotnet restore
+
+# העתק את שאר הקבצים
 COPY . .
 
-# העתק React build לתוך wwwroot של ה-backend
+# העתק React build לתוך wwwroot
 COPY --from=build-frontend /app/build ./wwwroot
 
 # Publish backend
 RUN dotnet publish -c Release -o /app/publish
 
-# --- Final stage: runtime ---
+# --- Runtime stage ---
 FROM mcr.microsoft.com/dotnet/aspnet:8.0
 WORKDIR /app
 
-# העתק ה?publish מהשלב הקודם
+# העתק מהשלב הקודם
 COPY --from=build-backend /app/publish .
 
-# מאזין לפורט הדינמי של Render
+# מאזין לפורט דינמי של Render
 ENV ASPNETCORE_URLS=http://+:${PORT:-8080}
 EXPOSE ${PORT:-8080}
 
-# הפעלת backend מה-DLL
+# הפעלת backend
 ENTRYPOINT ["dotnet", "TodoApi.dll"]
