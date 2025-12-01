@@ -27,6 +27,7 @@
 # --- Build React frontend ---
 # --- Build React frontend ---
 # --- Build React frontend ---
+# --- Build React frontend ---
 FROM node:20 AS build-frontend
 WORKDIR /app
 
@@ -43,11 +44,11 @@ RUN npm run build
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build-backend
 WORKDIR /src
 
-# העתק ה-.csproj של backend ותקן restore
+# העתק .csproj ותקן restore
 COPY ["TodoApi.csproj", "./"]
 RUN dotnet restore
 
-# העתק את שאר הקבצים
+# העתק את שאר הקבצים של backend
 COPY . .
 
 # העתק React build לתוך wwwroot
