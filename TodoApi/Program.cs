@@ -105,7 +105,6 @@
 
 //    public DbSet<ToDoTask> Tasks { get; set; } = null!;
 //}
-
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -117,7 +116,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // -------------------- SERVICES --------------------
 
-// הוספת DbContext עם MySQL
+// DbContext עם MySQL
 builder.Services.AddDbContext<ToDoDbContext>(options =>
     options.UseMySql(
         builder.Configuration.GetConnectionString("ToDoDB"),
@@ -125,7 +124,7 @@ builder.Services.AddDbContext<ToDoDbContext>(options =>
     )
 );
 
-// הגדרת CORS
+// CORS
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
@@ -139,19 +138,28 @@ builder.Services.AddSwaggerGen();
 // -------------------- APP --------------------
 var app = builder.Build();
 
+// מאזין לפורט מ־Render
+var port = Environment.GetEnvironmentVariable("PORT") ?? "5000";
+app.Urls.Add($"http://0.0.0.0:{port}");
+
+// הגשת React build
+app.UseDefaultFiles();
+app.UseStaticFiles();
+
+// CORS + Swagger
 app.UseCors();
 app.UseSwagger();
 app.UseSwaggerUI();
 
 // -------------------- ROUTES --------------------
 
-// שליפת כל המשימות
+// Get כל המשימות
 app.MapGet("/tasks", async (ToDoDbContext db) =>
 {
     return await db.Tasks.ToListAsync();
 });
 
-// הוספת משימה חדשה
+// Post משימה חדשה
 app.MapPost("/tasks", async (ToDoTask task, ToDoDbContext db) =>
 {
     db.Tasks.Add(task);
@@ -159,7 +167,7 @@ app.MapPost("/tasks", async (ToDoTask task, ToDoDbContext db) =>
     return Results.Created($"/tasks/{task.Id}", task);
 });
 
-// עדכון משימה
+// Put עדכון משימה
 app.MapPut("/tasks/{id}", async (int id, ToDoTask updatedTask, ToDoDbContext db) =>
 {
     var task = await db.Tasks.FindAsync(id);
@@ -172,7 +180,7 @@ app.MapPut("/tasks/{id}", async (int id, ToDoTask updatedTask, ToDoDbContext db)
     return Results.Ok(task);
 });
 
-// מחיקת משימה
+// Delete מחיקת משימה
 app.MapDelete("/tasks/{id}", async (int id, ToDoDbContext db) =>
 {
     var task = await db.Tasks.FindAsync(id);
@@ -182,6 +190,9 @@ app.MapDelete("/tasks/{id}", async (int id, ToDoDbContext db) =>
     await db.SaveChangesAsync();
     return Results.NoContent();
 });
+
+// Fallback ל־React
+app.MapFallbackToFile("index.html");
 
 app.Run();
 
@@ -199,10 +210,8 @@ public class ToDoDbContext : DbContext
     public ToDoDbContext(DbContextOptions<ToDoDbContext> options)
         : base(options) { }
 
-    // DbSet נשאר Tasks
     public DbSet<ToDoTask> Tasks { get; set; } = null!;
 
-    // התיקון: מיפוי Tasks לטבלת Items במסד
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<ToDoTask>().ToTable("Items");
