@@ -25,14 +25,17 @@
 #ENTRYPOINT ["dotnet", "TodoApi.dll"]
 # --- Build React ---
 # --- Build React frontend ---
+# --- Build React frontend ---
 FROM node:20 AS build-frontend
 WORKDIR /app
 
-# העתק package.json ו-.env
-COPY react-todos/package*.json ./
-COPY react-todos/.env ./
+# העתק package.json ו-.env של React
+COPY ToDoListReact-master/package*.json ./
+COPY ToDoListReact-master/.env ./
 RUN npm install
-COPY react-todos/ ./
+
+# העתק את כל קבצי React
+COPY ToDoListReact-master/ ./
 RUN npm run build
 
 # --- Build .NET backend ---
@@ -44,7 +47,7 @@ COPY ["TodoApi.csproj", "./"]
 RUN dotnet restore
 COPY . .
 
-# העתק React build לתוך wwwroot
+# העתק React build לתוך wwwroot של ה-backend
 COPY --from=build-frontend /app/build ./wwwroot
 
 # Publish backend
@@ -54,7 +57,7 @@ RUN dotnet publish -c Release -o /app/publish
 FROM mcr.microsoft.com/dotnet/aspnet:8.0
 WORKDIR /app
 
-# העתק ה־publish מהשלב הקודם
+# העתק ה?publish מהשלב הקודם
 COPY --from=build-backend /app/publish .
 
 # מאזין לפורט הדינמי של Render
