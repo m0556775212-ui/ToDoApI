@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "http://localhost:5071", // ודאי שהשרת רץ פה
+  baseURL: process.env.REACT_APP_API_URL,
 });
 
 function App() {
