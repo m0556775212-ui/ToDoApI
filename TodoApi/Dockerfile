@@ -2,10 +2,12 @@
 FROM node:20 AS build-frontend
 WORKDIR /app
 
-# העתקת קבצי React לתיקייה זמנית
-COPY ../ToDoListReact-master/package*.json ./ToDoListReact/
-COPY ../ToDoListReact-master/.env ./ToDoListReact/
-COPY ../ToDoListReact-master/ ./ToDoListReact/
+# העתקת קבצי React (נתיב יחסית ל-Dockerfile)
+COPY ../../ToDoListReact-master/package*.json ./ToDoListReact/
+COPY ../../ToDoListReact-master/.env ./ToDoListReact/
+COPY ../../ToDoListReact-master/ ./ToDoListReact/
+
+# התקנת תלותות ובניית frontend
 RUN cd ToDoListReact && npm install
 RUN cd ToDoListReact && npm run build
 
@@ -17,20 +19,20 @@ WORKDIR /src
 COPY TodoApi.csproj ./
 RUN dotnet restore
 
-# העתקת כל הקבצים של backend
+# העתקת כל קבצי backend
 COPY . ./
 
-# העתקת React build ל-wwwroot
+# העתקת React build ל-wwwroot של backend
 COPY --from=build-frontend /app/ToDoListReact/build ./wwwroot
 
-# בניית ה-backend
+# בניית backend
 RUN dotnet publish -c Release -o /app/publish
 
 # --- Runtime stage ---
 FROM mcr.microsoft.com/dotnet/aspnet:8.0
 WORKDIR /app
 
-# העתקת הקבצים המפורסמים לשלב הריצה
+# העתקת קבצים ל-stage הסופי
 COPY --from=build-backend /app/publish .
 
 # הגדרת PORT של Render
