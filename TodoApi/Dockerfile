@@ -20,7 +20,7 @@ WORKDIR /app
 COPY --from=build-backend /app/publish .
 
 # מאזין לפורט שספק Render נותן
-ENV ASPNETCORE_URLS=http://+:${PORT:-5000}
-EXPOSE ${PORT:-5000}
+ENV ASPNETCORE_URLS=http://+:${PORT}
+EXPOSE ${PORT}
 
 ENTRYPOINT ["dotnet", "TodoApi.dll"]
