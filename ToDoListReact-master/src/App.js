@@ -13,7 +13,6 @@ function App() {
 
   // טוען את כל המטלות
   const loadTasks = async () => {
-    console.log("API response:", res.data);
 
     console.log("Loading tasks...");
     try {
