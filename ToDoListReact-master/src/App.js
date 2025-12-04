@@ -13,6 +13,8 @@ function App() {
 
   // טוען את כל המטלות
   const loadTasks = async () => {
+    console.log("API response:", res.data);
+
     console.log("Loading tasks...");
     try {
       const res = await api.get("/tasks");
@@ -50,7 +52,7 @@ setTasks([...tasks, newTaskFromServer]);
 
 
       setNewTask("");
-      loadTasks();
+     
     } catch (err) {
       console.error("Error adding task:", err);
     }
