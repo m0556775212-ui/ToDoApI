@@ -1,5 +1,4 @@
 
-
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 
@@ -39,7 +38,17 @@ setTasks(tasksArray);
 
     try {
       const res = await api.post("/tasks", { Name: newTask, IsComplete: false });
-      setTasks([...tasks, res.data]);
+      // setTasks([...tasks, res.data]);
+
+      const newTaskFromServer = {
+  id: res.data.Id,
+  name: res.data.Name,
+  isComplete: res.data.IsComplete
+};
+
+setTasks([...tasks, newTaskFromServer]);
+
+
       setNewTask("");
     } catch (err) {
       console.error("Error adding task:", err);
