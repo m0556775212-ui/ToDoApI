@@ -139,7 +139,7 @@ builder.Services.AddSwaggerGen();
 var app = builder.Build();
 
 // מאזין לפורט מ־Render
-var port = Environment.GetEnvironmentVariable("PORT") ?? "5000";
+//var port = Environment.GetEnvironmentVariable("PORT") ?? "5000";
 app.Urls.Add($"http://0.0.0.0:{port}");
 
 // הגשת React build
