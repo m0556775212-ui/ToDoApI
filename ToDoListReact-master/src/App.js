@@ -50,6 +50,7 @@ setTasks([...tasks, newTaskFromServer]);
 
 
       setNewTask("");
+      loadTasks();
     } catch (err) {
       console.error("Error adding task:", err);
     }
